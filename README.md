@@ -19,3 +19,14 @@ Domain Expansion is your showstopper demo moment — skybox swap + YOLOv8-seg ov
 Biggest risks to watch for:
 The hardest part will likely be latency — running MobileViT-XXS via Unity Sentis + YOLOv8-seg + Niantic ARDK all on-device is a lot. Profile early and aggressively quantize your models (INT8 ONNX). The second risk is dataset quality — hand seals are subtle, so bad training data will tank your classifier regardless of model choice. Budget significant time for data collection and cleaning.
 
+//Must run this in CLI in order to access the dataset with API Key. 
+!pip install roboflow
+
+//Paste this into wherever you try to call the dataset.(Prob at the top of code)
+
+from roboflow import Roboflow
+rf = Roboflow(api_key="CDfGhvu8NXeiw3MRlk98")
+project = rf.workspace("ammans-workspace").project("ninjutsuar-4152")
+version = project.version(3)
+dataset = version.download("folder")
+
