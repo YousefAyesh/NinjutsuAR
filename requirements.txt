@@ -1,0 +1,87 @@
+NinjutsuAR: Anime Hand Sign Recognition for Augmented Reality Visual Effects
+Amman Kamili, Mohamaed Shaker, Yousef Ayesh, Abel Varghese
+University of North Carolina at Charlotte, Computing and Informatics
+{akamili2, mshaker1, yayesh1, avarghe5}@[charlotte.edu]
+Undergrad
+Abstract. We propose NinjutsuAR, a real-time AR system that recognises hand seal sequences from Naruto and Jujutsu
+Kaisen and triggers Unity-authored visual effects via a mobile camera. An efficient on-device foundation model identifies
+individual hand signs; confirmed labels populate a sliding sequence buffer matched against a dictionary of known sequences.
+A successful match spawns an environment-anchored animation — a fireball, a mud wall rising from the ground, or
+cursed-energy overlays applied to segmented bystanders, if one is present. Domain-sign sequences invoke a full Domain
+Expansion, enveloping all present subjects in a Unity environment.
+1 Introduction and Motivation
+The hand seal systems of Naruto and Jujutsu Kaisen
+define rich, visually distinctive gesture vocabularies ideal
+for gesture classification: twelve canonical Naruto seals
+and a set of cursed-technique poses (Fig. 1). Each seal
+is either a one or two-handed configuration that differs
+slightly but consistently from its neighbors. The goal of
+this project is to bridge these fictional vocabularies with
+physical AR. The correct sequence triggers the correspond-
+ing technique rendered in the user’s real environment. The
+system exercises on-device vision models, temporal se-
+quence recognition, object segmentation, and real-time AR
+scene composition.
+Horse Tiger
+Domain Expansion Hollow Purple
+Figure 1. Naruto hand seals (Dragon, Tiger) and two Jujutsu
+Kaisen cursed-technique poses (Domain Expansion, Hollow Pur-
+ple) used as classifier training targets.
+2 Technical Approach
+2.1 Hand Sign Recognition via Foundation Model
+We will use a fine-tuned MobileViT-XXS, a hybrid
+CNN Transformer foundation model designed for mobile
+deployment, on a custom dataset of the twelve Naruto seals
+and key Jujutsu Kaisen cursed-technique poses. Mobile-
+ViT uses both local convolutions with global self-attention
+to capture both fine-grained finger configuration and hand
+shapes, essential for determining seals that differ only in
+subtle joint angles. The model’s pre-training provides
+strong feature prior understanding; the model addition-
+ally receives 21 normalised 3-D hand-joint coordinates per
+frame from MediaPipe as a lightweight skeletal-feature
+input. The model is exported to ONNX and executed on-
+device via Unity Sentis.
+2.2 Temporal Sequence Recognition
+Detected gesture labels are appended to a time-bounded
+sliding buffer. A debounce mechanism will suppress re-
+peated appending of held poses across consecutive frames,
+and an inactivity timeout will reset the buffer between
+signs if met. The buffer is then compared against a series
+of correct label sequences. When a match is found, it will
+call upon that sequence’s corresponding animation to play.
+2.3 Person Segmentation and Effect Binding
+For sequences that target bystanders, a real-time in-
+stance segmentation model (YOLOv8-seg) identifies per-
+son masks in the frame. Particle systems and shader over-
+lays are applied onto the subject’s mask, making subjects
+appear covered in that animation’s related effects (i.e. set
+ablaze or covered in mud).
+2.4 AR Rendering via Niantic ARDK
+The Niantic ARDK provides depth estimation, environ-
+ment meshing, and world-anchor stability on iOS and An-
+droid. Directional animations are placed as GameObjects
+aligned to the depth mesh; ground-based effects use mesh
+hit-testing to determine spawn position and play surface.
+A recognized domain expansion sequence will replace the
+scene’s skybox with an animation that envelopes the user
+and all detected subjects in a Unity-authored immersive
+environment.
+3 Proposed Technology Demo
+The final deliverable is a live mobile AR demo (iOS or
+Android) showcasing:
+• Fireball Jutsu — Dragon → Tiger; a fireball particle
+animation flies in the direction of the camera.
+• Earth Wall — Boar → Dog → Bird; a stone wall rises
+from the ARDK ground mesh.
+• Hollow Purple — A purple ball of energy flies in the
+direction the user is pointed.
+• Domain Expansion — Unlimited Void; the skybox
+switches to black and white, enveloping the user and all
+other subjects.
+All recognition and rendering runs on a smartphone with
+its camera input, to mimic the experience of using an AR
+headset. The ideal implementation is to utilize these AR
+headsets, but for ease of testing and use, we are opting for
+smartphones.
+1
